@@ -1,6 +1,12 @@
-import { NotImplementedError } from "../../../../shared/errors/NotImplementedError.js";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
 
 export type CategoryKind = "income" | "expense";
+
+const schema = z.object({
+  kind: z.enum(["income", "expense"]),
+  name: z.string().min(1, "Category name is required."),
+});
 
 export type CategoryProps = {
   id?: string;
@@ -25,7 +31,21 @@ export class Category {
     this.createdAt = props.createdAt;
   }
 
-  public static create(_props: CategoryProps): Category {
-    throw new NotImplementedError("Implement category creation and validation rules.");
+  public static create(props: CategoryProps): Category {
+    const name = props.name.trim();
+    const kind = props.kind;
+
+    const result = schema.safeParse({ name, kind });
+    if (!result.success) {
+      throw new Error(result.error.issues[0].message)
+    }
+
+    return new Category({
+      id: props.id ?? randomUUID(),
+      userId: props.userId,
+      name: name,
+      kind: kind,
+      createdAt: props.createdAt ?? new Date(),
+    });
   }
 }

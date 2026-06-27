@@ -32,7 +32,7 @@ export class RegisterUserUseCase {
 
     const user = User.create({
       name: input.name,
-      email: input.email,
+      email,
       passwordHash,
     });
 

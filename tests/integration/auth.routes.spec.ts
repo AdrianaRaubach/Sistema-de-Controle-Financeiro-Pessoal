@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createApp } from "../../src/main/app.js";
-import { requestJson, startTestServer } from "../support/httpTestServer.js";
+import { clearDatabase, requestJson, startTestServer } from "../support/httpTestServer.js";
 
 describe("Authentication routes", () => {
   let testServer: Awaited<ReturnType<typeof startTestServer>>;
 
   beforeEach(async () => {
+    await clearDatabase();
     testServer = await startTestServer(createApp());
   });
 

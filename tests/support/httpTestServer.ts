@@ -1,6 +1,14 @@
+import "dotenv/config";
 import { createServer, type Server } from "node:http";
 
 import type { Express } from "express";
+import { prisma } from "../../src/shared/database/prisma.js";
+
+export const clearDatabase = async (): Promise<void> => {
+  await prisma.transaction.deleteMany();
+  await prisma.category.deleteMany();
+  await prisma.user.deleteMany();
+};
 
 type StartedServer = {
   baseUrl: string;

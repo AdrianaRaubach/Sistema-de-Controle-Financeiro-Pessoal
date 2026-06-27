@@ -1,9 +1,8 @@
 import { randomUUID } from "node:crypto";
-
 import { z } from "zod";
 
 const schema = z.object({
-  name: z.string().min(1, "User name is required."),
+  name: z.string().min(3, "User name is required."),
   email: z.string().email("A valid user email is required."),
 });
 
