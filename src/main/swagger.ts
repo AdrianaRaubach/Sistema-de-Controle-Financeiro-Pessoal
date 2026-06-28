@@ -50,6 +50,18 @@ export const swaggerSpec = {
           category: { type: "object" },
         }
       },
+      ReportsMonthlyBalanceResponse: {
+        month: { type: "string"},
+        year: { type: "string"},
+        income: { type: "number" },
+        expense: { type: "number" },
+        balance: { type: "number" },
+      },
+      ReportsCategorySummaryResponse: {
+        categoryId: { type: "string" },
+        categoryName: { type: "string" },
+        total: { type: "number" },
+      },
       Error: {
         type: "object",
         properties: {
@@ -283,6 +295,46 @@ export const swaggerSpec = {
           },
           "409": {
             description: "Despesa já foi paga",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/reports/monthly-balance": {
+      get: {
+        tags: ["Reports monthly balance"],
+        summary: "Saldo mensal",
+        parameters: [
+          { name: "month", in: "query", schema: { type: "integer", example: 6 } },
+          { name: "year", in: "query", schema: { type: "integer", example: 2026 } },
+        ],
+        responses: {
+          "200": {
+            description: "Lista de transações",
+            content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/TransactionResponse" } } } }
+          },
+          "401": {
+            description: "Não autenticado",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/reports/category-summary": {
+      get: {
+        tags: ["Reports category summary"],
+        summary: "Relatório por categoria",
+        parameters: [
+          { name: "month", in: "query", schema: { type: "integer", example: 6 } },
+          { name: "year", in: "query", schema: { type: "integer", example: 2026 } },
+        ],
+        responses: {
+          "200": {
+            description: "Lista de transações",
+            content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/TransactionResponse" } } } }
+          },
+          "401": {
+            description: "Não autenticado",
             content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
           }
         }
