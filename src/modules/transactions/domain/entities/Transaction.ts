@@ -1,7 +1,15 @@
-import { NotImplementedError } from "../../../../shared/errors/NotImplementedError.js";
+import { ExpenseAlreadyPaidError } from "../../application/errors/ExpenseAlreadyPaidError.js";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
 
 export type TransactionType = "income" | "expense";
 export type ExpenseStatus = "pending" | "paid";
+
+const schema = z.object({
+  type: z.enum(["income", "expense"]),
+  description: z.string().min(1, "Description is required."),
+  amount: z.number().min(0.01, "Transaction amount must be greater than zero."),
+});
 
 export type TransactionProps = {
   id?: string;
@@ -17,6 +25,9 @@ export type TransactionProps = {
 };
 
 export class Transaction {
+  static markAsPaid(arg0: { userId: string; transactionId: string; paidAt: Date | undefined; }) {
+    throw new Error("Method not implemented.");
+  }
   public readonly id: string;
   public readonly userId: string;
   public readonly categoryId: string;
@@ -41,11 +52,56 @@ export class Transaction {
     this.createdAt = props.createdAt;
   }
 
-  public static create(_props: TransactionProps): Transaction {
-    throw new NotImplementedError("Implement transaction creation and validation rules.");
+  public static create(props: TransactionProps): Transaction {
+    const type = props.type;
+    const description = props.description.trim();
+    const amount = props.amount;
+    const status = props.type === "expense" ? "pending" : null;
+
+
+    const result = schema.safeParse({ type, description, amount });
+    if (!result.success) {
+      throw new Error(result.error.issues[0].message)
+    }
+
+    return new Transaction({
+      id: props.id ?? randomUUID(),
+      userId: props.userId,
+      categoryId: props.categoryId,
+      type: type,
+      description: description,
+      amount: amount,
+      status: status,
+      occurredAt: props.occurredAt,
+      paidAt: null,
+      createdAt: props.createdAt ?? new Date(),
+    });
   }
 
-  public markAsPaid(_paidAt?: Date): Transaction {
-    throw new NotImplementedError("Implement expense payment transition.");
+  public static restore(props: Required<TransactionProps>): Transaction {
+    return new Transaction(props);
+  }
+
+  public markAsPaid(paidAt?: Date): Transaction {
+    if (this.type !== "expense") {
+      throw new Error("Only expenses can be marked as paid.");
+    }
+
+    if (this.status === "paid") {
+      throw new ExpenseAlreadyPaidError();
+    }
+
+    return new Transaction({
+      id: this.id,
+      userId: this.userId,
+      categoryId: this.categoryId,
+      type: this.type,
+      description: this.description,
+      amount: this.amount,
+      occurredAt: this.occurredAt,
+      status: "paid",
+      paidAt: paidAt ?? new Date(),
+      createdAt: this.createdAt,
+    });
   }
 }

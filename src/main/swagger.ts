@@ -34,6 +34,22 @@ export const swaggerSpec = {
           user: { type: "object"}
         }
       },
+      TransactionResponse: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          description: { type: "string" },
+          type: { type: "string" },
+          amount: { type: "number" },
+          status: { type: "string" },
+          occurredAt: { type: "string", format: "date-time" },
+          paidAt: { type: "string", format: "date-time" },
+          userId: { type: "string" },
+          user: { type: "object" },
+          categoryId: { type: "string"},
+          category: { type: "object" },
+        }
+      },
       Error: {
         type: "object",
         properties: {
@@ -170,6 +186,97 @@ export const swaggerSpec = {
           },
           "401": {
             description: "Não autenticado",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/transactions": {
+      post: {
+        tags: ["Transaction"],
+        summary: "Criar Transação",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["description", "type", "amount", "occurredAt", "categoryId"],
+                properties: {
+                  description: { type: "string", example: "Aluguel" },
+                  type: { type: "string", example: "expense" },
+                  amount: { type: "number", example: 1500 },
+                  categoryId: { type: "string", example: "123e4567-e89b-12d3-a456-426614174000" },
+                  occurredAt: { type: "string", format: "date-time", example: "2026-06-21T19:45:00.000Z" }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          "201": {
+            description: "Transação criada com sucesso",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/TransactionResponse" } } }
+          },
+          "401": {
+            description: "Não autenticado",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          },
+          "409": {
+            description: "Transação já existe",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      get: {
+        tags: ["Transaction"],
+        summary: "Listar transações",
+        responses: {
+          "200": {
+            description: "Lista de transações",
+            content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/TransactionResponse" } } } }
+          },
+          "401": {
+            description: "Não autenticado",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/transactions/{id}/pay": {
+      patch: {
+        tags: ["Transaction"],
+        summary: "Marcar despesa como paga",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } }
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  paidAt: { type: "string", format: "date-time", example: "2026-06-21T19:45:00.000Z" }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          "200": {
+            description: "Despesa marcada como paga",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/TransactionResponse" } } }
+          },
+          "401": {
+            description: "Não autenticado",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          },
+          "404": {
+            description: "Transação não encontrada",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          },
+          "409": {
+            description: "Despesa já foi paga",
             content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
           }
         }
