@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../../../../shared/http/AuthenticatedRequest.js";
 import { NotImplementedError } from "../../../../../shared/errors/NotImplementedError.js";
@@ -8,15 +8,16 @@ import type { CreateTransactionUseCase } from "../../../application/use-cases/Cr
 export class CreateTransactionController {
   constructor(private readonly createTransactionUseCase: CreateTransactionUseCase) {}
 
-  public handle = async (request: AuthenticatedRequest, response: Response): Promise<Response> => {
+  public handle = async (request: Request, response: Response): Promise<Response> => {
+    const req = request as AuthenticatedRequest;
     try {
       const transaction = await this.createTransactionUseCase.execute({
-        userId: request.auth.userId,
-        categoryId: request.body.categoryId,
-        type: request.body.type,
-        description: request.body.description,
-        amount: Number(request.body.amount),
-        occurredAt: new Date(request.body.occurredAt)
+        userId: req.auth.userId,
+        categoryId: req.body.categoryId,
+        type: req.body.type,
+        description: req.body.description,
+        amount: Number(req.body.amount),
+        occurredAt: new Date(req.body.occurredAt)
       });
 
       return response.status(201).json({

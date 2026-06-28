@@ -13,7 +13,7 @@ export class ListTransactionsUseCase {
   public async execute(input: ListTransactionsInput): Promise<Transaction[]> {
     void this.transactionRepository;
 
-    const list = this.transactionRepository.listByUserId(input.userId)
+    const list = await this.transactionRepository.listByUserId(input.userId, input.filters)
 
     return list;
   }

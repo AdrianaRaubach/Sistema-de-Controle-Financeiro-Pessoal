@@ -231,6 +231,12 @@ export const swaggerSpec = {
       get: {
         tags: ["Transaction"],
         summary: "Listar transações",
+        parameters: [
+          { name: "month", in: "query", schema: { type: "integer", example: 6 } },
+          { name: "year", in: "query", schema: { type: "integer", example: 2026 } },
+          { name: "categoryId", in: "query", schema: { type: "string" } },
+          { name: "type", in: "query", schema: { type: "string", enum: ["income", "expense"] } }
+        ],
         responses: {
           "200": {
             description: "Lista de transações",

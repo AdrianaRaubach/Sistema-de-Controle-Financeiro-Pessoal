@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../../../../shared/http/AuthenticatedRequest.js";
 import { NotImplementedError } from "../../../../../shared/errors/NotImplementedError.js";
@@ -9,12 +9,13 @@ import type { MarkExpenseAsPaidUseCase } from "../../../application/use-cases/Ma
 export class MarkExpenseAsPaidController {
   constructor(private readonly markExpenseAsPaidUseCase: MarkExpenseAsPaidUseCase) {}
 
-  public handle = async (request: AuthenticatedRequest, response: Response): Promise<Response> => {
+  public handle = async (request: Request, response: Response): Promise<Response> => {
+    const req = request as AuthenticatedRequest;
     try {
       const transaction = await this.markExpenseAsPaidUseCase.execute({
-        userId: request.auth.userId,
-        transactionId: request.params.id,
-        paidAt: request.body.paidAt ? new Date(request.body.paidAt) : undefined
+        userId: req.auth.userId,
+        transactionId: String(req.params.id),
+        paidAt: req.body.paidAt ? new Date(req.body.paidAt) : undefined
       });
 
       return response.status(200).json(transaction);

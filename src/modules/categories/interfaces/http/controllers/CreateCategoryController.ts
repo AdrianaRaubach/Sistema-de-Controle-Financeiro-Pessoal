@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../../../../shared/http/AuthenticatedRequest.js";
 import { NotImplementedError } from "../../../../../shared/errors/NotImplementedError.js";
@@ -8,10 +8,11 @@ import type { CreateCategoryUseCase } from "../../../application/use-cases/Creat
 export class CreateCategoryController {
   constructor(private readonly createCategoryUseCase: CreateCategoryUseCase) {}
 
-  public handle = async (request: AuthenticatedRequest, response: Response): Promise<Response> => {
+  public handle = async (request: Request, response: Response): Promise<Response> => {
+    const req = request as AuthenticatedRequest;
     try {
       const category = await this.createCategoryUseCase.execute({
-        userId: request.auth.userId,
+        userId: req.auth.userId,
         name: request.body.name,
         kind: request.body.kind
       });

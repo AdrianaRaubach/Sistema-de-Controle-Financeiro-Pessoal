@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../../../../shared/http/AuthenticatedRequest.js";
 import { NotImplementedError } from "../../../../../shared/errors/NotImplementedError.js";
@@ -7,9 +7,10 @@ import type { ListCategoriesUseCase } from "../../../application/use-cases/ListC
 export class ListCategoriesController {
   constructor(private readonly listCategoriesUseCase: ListCategoriesUseCase) {}
 
-  public handle = async (request: AuthenticatedRequest, response: Response): Promise<Response> => {
+  public handle = async (request: Request, response: Response): Promise<Response> => {
+    const req = request as AuthenticatedRequest;
     try {
-      const categories = await this.listCategoriesUseCase.execute(request.auth.userId);
+      const categories = await this.listCategoriesUseCase.execute(req.auth.userId);
 
       return response.status(200).json(categories);
     } catch (error) {

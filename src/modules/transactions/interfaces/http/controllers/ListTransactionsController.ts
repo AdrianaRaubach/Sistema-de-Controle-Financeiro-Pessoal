@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../../../../shared/http/AuthenticatedRequest.js";
 import { NotImplementedError } from "../../../../../shared/errors/NotImplementedError.js";
@@ -8,15 +8,16 @@ import type { ListTransactionsUseCase } from "../../../application/use-cases/Lis
 export class ListTransactionsController {
   constructor(private readonly listTransactionsUseCase: ListTransactionsUseCase) {}
 
-  public handle = async (request: AuthenticatedRequest, response: Response): Promise<Response> => {
+  public handle = async (request: Request, response: Response): Promise<Response> => {
+    const req = request as AuthenticatedRequest;
     try {
       const transactions = await this.listTransactionsUseCase.execute({
-        userId: request.auth.userId,
+        userId: req.auth.userId,
         filters: {
-          month: request.query.month ? Number(request.query.month) : undefined,
-          year: request.query.year ? Number(request.query.year) : undefined,
-          categoryId: request.query.categoryId ? String(request.query.categoryId) : undefined,
-          type: request.query.type ? (String(request.query.type) as TransactionType) : undefined
+          month: req.query.month ? Number(req.query.month) : undefined,
+          year: req.query.year ? Number(req.query.year) : undefined,
+          categoryId: req.query.categoryId ? String(req.query.categoryId) : undefined,
+          type: req.query.type ? (String(req.query.type) as TransactionType) : undefined
         }
       });
 
