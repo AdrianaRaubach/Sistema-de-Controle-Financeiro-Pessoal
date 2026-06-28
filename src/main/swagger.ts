@@ -24,6 +24,16 @@ export const swaggerSpec = {
           token: { type: "string" }
         }
       },
+      CategoryResponse: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          name: { type: "string" },
+          kind: { type: "string" },
+          userId: { type: "string" },
+          user: { type: "object"}
+        }
+      },
       Error: {
         type: "object",
         properties: {
@@ -111,6 +121,55 @@ export const swaggerSpec = {
           },
           "401": {
             description: "Credenciais inválidas",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/categories": {
+      post: {
+        tags: ["Categories"],
+        summary: "Criar categoria",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["name", "kind"],
+                properties: {
+                  name: { type: "string", example: "Moradia" },
+                  kind: { type: "string", example: "expense" }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          "201": {
+            description: "Categoria criada com sucesso",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/CategoryResponse" } } }
+          },
+          "401": {
+            description: "Não autenticado",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          },
+          "409": {
+            description: "Categoria já existe",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      get: {
+        tags: ["Categories"],
+        summary: "Listar categorias",
+        responses: {
+          "200": {
+            description: "Lista de categorias",
+            content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/CategoryResponse" } } } }
+          },
+          "401": {
+            description: "Não autenticado",
             content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } }
           }
         }
